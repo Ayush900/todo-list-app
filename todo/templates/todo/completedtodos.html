@@ -3,11 +3,12 @@
 
 
 {% block content %}
-<h1>Current</h1>
+<h1>Completed todos</h1>
 <ul>
   {% for todo in todos %}
   <li> {% if todo.important %}<b><a href="{% url 'viewtodo' todo.id %}">{{ todo.title }}</a></b> {% else %}<a href="{% url 'viewtodo' todo.id %}">{{ todo.title }}</a>{% endif %}
       {% if todo.memo %} - {{ todo.memo }} {% endif %}
+      {{ todo.datecompleted }}
   </li>
   {% endfor %}
 </ul>

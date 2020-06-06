@@ -1,8 +1,12 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth import login,logout,authenticate
+from .forms import TodoCreationForm
+from .models import todoslist
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request,'todo/home.html')
@@ -34,11 +38,61 @@ def loginuser(request):
         else:
             login(request , user)
             return redirect('current')
-
+    
+@login_required
 def current(request):
-    return render(request,'todo/current.html')
+    todos = todoslist.objects.filter(user = request.user,datecompleted__isnull =True)
+    return render(request,'todo/current.html',{'todos':todos})
 
+@login_required
+def viewtodo(request,todo_pk):
+    todo = get_object_or_404(todoslist,pk = todo_pk,user = request.user)
+    if request.method  == 'GET':
+        form = TodoCreationForm(instance = todo)
+        return render(request,'todo/viewtodo.html',{'todo':todo,'form':form})
+    else:
+        try:
+            form = TodoCreationForm(request.POST,instance = todo)
+            form.save()
+            return redirect('current')
+        except ValueError:
+            return render(request,'todo/viewtodo.html',{'todo':todo,'form':form,'error':'Bad data Input !'})
 
+@login_required
+def createtodoview(request):
+    if request.method  == 'GET':
+        return render(request,'todo/createtodo.html',{'form':TodoCreationForm()})
+    else:
+        try:
+            form = TodoCreationForm(request.POST)
+            newtodo = form.save(commit = False)
+            newtodo.user = request.user
+            newtodo.save()
+            return redirect('current')
+        except ValueError:
+            return render(request,'todo/createtodo.html',{'form':TodoCreationForm(),'error':'Invalid data passed in . Try again .'})
+
+@login_required
+def complete(request,todo_pk):
+    todo = get_object_or_404(todoslist,pk = todo_pk,user = request.user)
+    if request.method  == 'POST':
+        todo.datecompleted = timezone.now()
+        todo.save()
+        return redirect('current')
+
+@login_required
+def deletetodo(request,todo_pk):
+    todo = get_object_or_404(todoslist,pk = todo_pk,user = request.user)
+    if request.method  == 'POST':
+        todo.delete()
+        return redirect('current')
+
+@login_required
+def completedtodos(request):
+    todos = todoslist.objects.filter(user = request.user,datecompleted__isnull = False).order_by(-datecompleted)
+    return render(request,'todo/completedtodos.html',{'todos':todos})
+
+@login_required
 def logoutuser(request):
     if request.method == 'POST':
         logout(request)

@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import todoslist
+
+class TodoAdmin(admin.ModelAdmin):
+    readonly_fields = ('created',)
+
+admin.site.register(todoslist,TodoAdmin)

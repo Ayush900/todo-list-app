@@ -3,5 +3,10 @@
 
 
 {% block content %}
+
+<a href="{% url 'current' %}">current</a>
+<a href="{% url 'completedtodos' %}">completed</a>
+<a href="{% url 'createtodo' %}">create</a>
+
 <h1>home</h1>
 {% endblock %}
