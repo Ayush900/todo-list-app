@@ -38,11 +38,15 @@ def loginuser(request):
         else:
             login(request , user)
             return redirect('current')
-    
+
 @login_required
 def current(request):
-    todos = todoslist.objects.filter(user = request.user,datecompleted__isnull =True)
-    return render(request,'todo/current.html',{'todos':todos})
+    todos = todoslist.objects.filter(user = request.user,datecompleted__isnull=True)
+    if len(todos) == 0:
+        return render(request,'todo/current.html',{'todos':todos,'error':'Looks like you dont have any current todos yet !'})
+    else:
+        return render(request,'todo/current.html',{'todos':todos})
+
 
 @login_required
 def viewtodo(request,todo_pk):
@@ -89,7 +93,7 @@ def deletetodo(request,todo_pk):
 
 @login_required
 def completedtodos(request):
-    todos = todoslist.objects.filter(user = request.user,datecompleted__isnull = False).order_by(-datecompleted)
+    todos = todoslist.objects.filter(user = request.user,datecompleted__isnull = False)
     return render(request,'todo/completedtodos.html',{'todos':todos})
 
 @login_required
