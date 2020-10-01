@@ -2,7 +2,7 @@
 
 Create your daily todos using this app and be punctual to your timetable !
 
-For this particular project to run you need python 3.6 or higher and django 2 or higher installed on your system .
+For this particular project to run you need python 3.6 or higher and django 3 or higher installed on your system .
 
 Change directory in the terminal to a path where the project's "manage.py" file is present .
 
